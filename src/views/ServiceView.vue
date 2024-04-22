@@ -16,10 +16,20 @@ import {
 } from '@/components/ui/table'
 import ServiceDialogCreate from '@/components/ServiceDialogCreate.vue';
 import { Button } from '@/components/ui/button'
+import { ChevronLeft } from 'lucide-vue-next'
+import { useRouter } from 'vue-router';
 
+const router = useRouter()
+
+const handleRouter = () => router.replace('/dashboard')
 </script>
 <template>
     <div class="container mx-auto my-20">
+        <Button variant="ghost" class="mb-5" @click="handleRouter">
+            <ChevronLeft class="w-4 h-4 mr-2" />
+            Back to Dashboard
+        </Button>
+
         <Card>
             <CardHeader>
                 <CardTitle>Service</CardTitle>
