@@ -1,34 +1,32 @@
 <script setup lang="ts">
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog'
+import { useDialogStore } from '@/stores/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { reactive } from 'vue'
-import type { FormUsers } from '@/types/User'
+import { onUpdated, reactive } from 'vue'
+import type { FormUsers, Users } from '@/types/User'
 import { useToast } from './ui/toast'
 import { apiAuth } from '@/lib/useAuth'
 
 const { toast } = useToast()
+const dialogStore = useDialogStore()
 
 const emit = defineEmits(['eventLoadUser'])
 
+const props = defineProps<{
+    data: Users | null,
+}>()
 
-const form: FormUsers = reactive({
+const resource = {
     name: '',
     email: '',
     password: '',
     phone_number: '',
     address: '',
-    dialog: false
-})
+}
+
+const form: FormUsers = reactive(resource)
 
 const resetForm = () => {
     form.name = ''
@@ -38,8 +36,23 @@ const resetForm = () => {
     form.address = ''
 }
 
+const handleCancelButton = () => {
+    dialogStore.closeDialog()
+    resetForm()
+}
+
+onUpdated(() => {
+    if (dialogStore.show !== false) {
+        form.name = props.data?.name ?? ''
+        form.email = props.data?.email ?? ''
+        form.password = ''
+        form.phone_number = props.data?.phone_number ?? ''
+        form.address = props.data?.address ?? ''
+    }
+})
+
 const handleSubmitUser = () => {
-    apiAuth().post('/api/user', {
+    apiAuth().put(`/api/user/${props.data?.id}`, {
         name: form.name,
         email: form.email,
         password: form.password,
@@ -48,10 +61,10 @@ const handleSubmitUser = () => {
     }).then(res => {
         console.log(res);
         toast({
-            title: 'Successfully create user'
+            title: 'Successfully update user'
         })
         resetForm()
-        form.dialog = false
+        dialogStore.closeDialog()
         emit('eventLoadUser')
     }).catch(err => {
         toast({
@@ -59,18 +72,14 @@ const handleSubmitUser = () => {
         })
     })
 }
-
 </script>
 <template>
-    <Dialog :open="form.dialog">
-        <DialogTrigger>
-            <Button @click="form.dialog = true" size="sm">Create New User</Button>
-        </DialogTrigger>
+    <Dialog :open="dialogStore.show">
         <DialogContent class="sm:max-w-2xl grid-rows-[auto_minmax(0,1fr)_auto] max-h-[90dvh]">
             <DialogHeader class="p-6 pb-0">
-                <DialogTitle>Form Create User</DialogTitle>
+                <DialogTitle>Form Update User</DialogTitle>
                 <DialogDescription>
-                    Create a user to use this app gym
+                    Update a user to use this app gym
                 </DialogDescription>
             </DialogHeader>
 
@@ -87,8 +96,8 @@ const handleSubmitUser = () => {
             </div>
 
             <DialogFooter>
-                <Button variant="ghost" @click="form.dialog = false">Cancel</Button>
-                <Button @click="handleSubmitUser">Save User</Button>
+                <Button variant="ghost" @click="handleCancelButton">Cancel</Button>
+                <Button @click="handleSubmitUser">Update User</Button>
             </DialogFooter>
         </DialogContent>
     </Dialog>

@@ -1,49 +1,59 @@
 <script setup lang="ts">
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card'
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table'
+import Toaster from '@/components/ui/toast/Toaster.vue'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import UserDialogCreate from '@/components/UserDialogCreate.vue';
 import { Button } from '@/components/ui/button'
 import { ChevronLeft } from 'lucide-vue-next'
 import { useRouter } from 'vue-router';
 import { onMounted, reactive } from 'vue';
-import axios from 'axios';
-import Cookies from 'js-cookie'
 import type { Users } from "@/types/User"
+import { apiAuth } from '@/lib/useAuth';
+import { toast } from '@/components/ui/toast';
+import UserDialogUpdate from '@/components/UserDialogUpdate.vue';
+import { useDialogStore } from '@/stores/dialog';
 
 const router = useRouter()
+const dialogStore = useDialogStore()
 
 const handleBackToDashboard = () => router.replace('/dashboard')
 
-const form: { users: Users[] } = reactive({
-    users: []
+const form: { users: Users[]; update: null | Users; } = reactive({
+    users: [],
+    update: null,
 })
 
-onMounted(() => {
-    const domain = import.meta.env.VITE_BACKEND_DOMAIN
-
-    axios.get(domain + '/api/user', {
-        headers: {
-            Authorization: Cookies.get('ar_gym_session')
-        }
-    }).then(res => {
-        console.log(res.data);
+const handleLoadUser = () => {
+    apiAuth().get('/api/user').then(res => {
         form.users = res.data
     }).catch(err => {
-        console.log(err.response.data.message);
+        if (err.response.status == 401) {
+            router.replace('/')
+            return
+        }
     })
+}
+
+const handleDeleteUser = (id: number) => {
+    apiAuth().delete(`/api/user/${id}`)
+        .then(res => {
+            toast({ title: res.data.message })
+            handleLoadUser()
+        })
+        .catch(err => toast({ title: err.response.message }))
+}
+
+const handleEditUser = (id: number) => {
+    apiAuth().get(`/api/user/${id}`)
+        .then(res => {
+            form.update = res.data
+            dialogStore.openDialog()
+        })
+        .catch(err => toast({ title: err.response.message }))
+}
+
+onMounted(() => {
+    handleLoadUser()
 })
 </script>
 <template>
@@ -59,7 +69,7 @@ onMounted(() => {
                 <CardDescription>All users</CardDescription>
             </CardHeader>
             <CardContent>
-                <UserDialogCreate />
+                <UserDialogCreate @eventLoadUser="handleLoadUser" />
 
                 <Table class="mt-10">
                     <TableHeader>
@@ -87,8 +97,8 @@ onMounted(() => {
                             </TableCell>
                             <TableCell class="text-right">
                                 <div class="flex justify-end gap-2">
-                                    <Button variant="secondary">Edit</Button>
-                                    <Button variant="destructive">Delete</Button>
+                                    <Button @click="handleEditUser(user.id)" variant="secondary">Edit</Button>
+                                    <Button @click="handleDeleteUser(user.id)" variant="destructive">Delete</Button>
                                 </div>
                             </TableCell>
                         </TableRow>
@@ -96,5 +106,8 @@ onMounted(() => {
                 </Table>
             </CardContent>
         </Card>
+
+        <UserDialogUpdate :data="form.update" @eventLoadUser="handleLoadUser" />
+        <Toaster />
     </div>
 </template>

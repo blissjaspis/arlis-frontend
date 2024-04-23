@@ -8,11 +8,10 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import Cookies from 'js-cookie'
-import axios from 'axios'
 import { reactive } from 'vue'
 import { useToast } from '@/components/ui/toast/use-toast'
 import { useRouter } from 'vue-router'
+import { apiAuth, setSession } from '@/lib/useAuth'
 const { toast } = useToast()
 const router = useRouter()
 
@@ -27,14 +26,12 @@ const form: Form = reactive({
 })
 
 const handleSubmitLogin = () => {
-    const domain = import.meta.env.VITE_BACKEND_DOMAIN
-
-    axios.post(domain + '/api/login', {
+    apiAuth().post('/api/login', {
         email: form.email,
         password: form.password
     }).then(res => {
         console.log(res.data);
-        Cookies.set('ar_gym_session', `${res.data.type} ${res.data.access_token}`)
+        setSession(res.data.type, res.data.access_token)
         toast({
             title: 'Login successfully'
         })
