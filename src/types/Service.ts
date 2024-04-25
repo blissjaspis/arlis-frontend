@@ -1,3 +1,12 @@
+export interface Information {
+  id: number
+  food_recomendation: string
+}
+
+export interface FormInformation {
+  food_recomendation: string
+}
+
 export interface Service {
   id: number
   name: string
