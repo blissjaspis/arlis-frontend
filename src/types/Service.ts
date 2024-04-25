@@ -18,8 +18,32 @@ export interface Order {
   total_price_raw: number
 }
 
+export interface Member {
+  id: number
+  expired_at: string
+  expired_at_result: string
+  user_name: string
+  user_id: string
+  service_name: string
+  service_id: string
+}
+
 export interface FormOrder {
   order_code: string
+  user_id: string
+  service_id: string
+  users: {
+    id: number
+    name: string
+  }[]
+  services: {
+    id: number
+    name: string
+  }[]
+}
+
+export interface FormMember {
+  expired_at: string
   user_id: string
   service_id: string
   users: {
