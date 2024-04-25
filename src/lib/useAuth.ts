@@ -20,3 +20,7 @@ export function apiAuth() {
 export function setSession(type: string, access_token: string) {
   Cookies.set('ar_gym_session', `${type} ${access_token}`)
 }
+
+export function removeSession() {
+  Cookies.remove('ar_gym_session')
+}

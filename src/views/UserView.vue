@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Toaster from '@/components/ui/toast/Toaster.vue'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import UserDialogCreate from '@/components/UserDialogCreate.vue';
@@ -108,6 +107,5 @@ onMounted(() => {
         </Card>
 
         <UserDialogUpdate :data="form.update" @eventLoadUser="handleLoadUser" />
-        <Toaster />
     </div>
 </template>

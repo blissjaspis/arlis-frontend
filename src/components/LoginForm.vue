@@ -1,11 +1,5 @@
 <script setup lang="ts">
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { reactive } from 'vue'
@@ -25,6 +19,8 @@ const form: Form = reactive({
     password: ''
 })
 
+const handleRouteToRegister = () => router.push('/register')
+
 const handleSubmitLogin = () => {
     apiAuth().post('/api/login', {
         email: form.email,
@@ -33,7 +29,7 @@ const handleSubmitLogin = () => {
         console.log(res.data);
         setSession(res.data.type, res.data.access_token)
         toast({
-            title: 'Login successfully'
+            title: 'Successfully login'
         })
         router.push('/dashboard')
     }).catch(err => {
@@ -57,7 +53,12 @@ const handleSubmitLogin = () => {
         </CardHeader>
         <CardContent>
             <Input v-model="form.email" type="email" placeholder="Email" class="mb-5" />
-            <Input v-model="form.password" type="password" placeholder="Password" class="mb-5" />
+            <Input @keyup.enter="handleSubmitLogin" v-model="form.password" type="password" placeholder="Password"
+                class="mb-5" />
+            <div class="flex justify-end mb-2">
+                <a href="javascript:;" @click="handleRouteToRegister"
+                    class="text-sm text-gray-700 hover:text-blue-500">Register?</a>
+            </div>
             <Button @click="handleSubmitLogin">Login</Button>
         </CardContent>
     </Card>
