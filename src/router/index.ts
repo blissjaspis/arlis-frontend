@@ -5,6 +5,7 @@ import DashboardView from '../views/DashboardView.vue'
 import UserView from '../views/UserView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import InformationView from '@/views/InformationView.vue'
+import OrderView from '@/views/OrderView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,6 +39,11 @@ const router = createRouter({
       path: '/information',
       name: 'information',
       component: InformationView
+    },
+    {
+      path: '/order',
+      name: 'order',
+      component: OrderView
     },
     {
       path: '/about',
