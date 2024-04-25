@@ -1,13 +1,6 @@
 <script setup lang="ts">
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogFooter } from '@/components/ui/dialog'
+import { DialogHeader, DialogTitle, DialogTrigger, } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -59,7 +52,6 @@ const handleSubmitUser = () => {
         })
     })
 }
-
 </script>
 <template>
     <Dialog :open="form.dialog">

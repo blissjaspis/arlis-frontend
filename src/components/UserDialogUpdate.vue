@@ -24,6 +24,7 @@ const resource = {
     password: '',
     phone_number: '',
     address: '',
+    dialog: false
 }
 
 const form: FormUsers = reactive(resource)

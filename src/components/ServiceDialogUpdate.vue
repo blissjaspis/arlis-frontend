@@ -1,27 +1,26 @@
 <script setup lang="ts">
 import { Dialog, DialogContent, DialogDescription, DialogFooter } from '@/components/ui/dialog'
-import { DialogHeader, DialogTitle, DialogTrigger, } from '@/components/ui/dialog'
+import { DialogHeader, DialogTitle, } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel } from '@/components/ui/select'
 import { SelectTrigger, SelectValue, } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { reactive } from 'vue'
+import { onUpdated, reactive } from 'vue'
 import { apiAuth } from '@/lib/useAuth'
 import { useToast } from './ui/toast'
+import { useDialogStore } from '@/stores/dialog'
+import type { FormService, Service } from '@/types/Service'
 
 const { toast } = useToast()
+const dialogStore = useDialogStore()
 
 const emit = defineEmits(['eventLoadService'])
 
-interface Form {
-    name: string
-    price: string
-    type: string
-    duration_months: string
-    dialog: boolean
-}
+const props = defineProps<{
+    data: Service | null,
+}>()
 
-const form: Form = reactive({
+const form: FormService = reactive({
     name: '',
     price: '',
     type: 'gold',
@@ -36,8 +35,13 @@ const resetForm = () => {
     form.duration_months = ''
 }
 
+const handleCancelButton = () => {
+    dialogStore.closeDialog()
+    resetForm()
+}
+
 const handleSubmitService = () => {
-    apiAuth().post('/api/service', {
+    apiAuth().put(`/api/service/${props.data?.id}`, {
         name: form.name,
         price: form.price,
         type: form.type,
@@ -45,10 +49,10 @@ const handleSubmitService = () => {
     }).then(res => {
         console.log(res);
         toast({
-            title: 'Successfully create service'
+            title: 'Successfully update service'
         })
         resetForm()
-        form.dialog = false
+        dialogStore.closeDialog()
         emit('eventLoadService')
     }).catch(err => {
         toast({
@@ -56,17 +60,23 @@ const handleSubmitService = () => {
         })
     })
 }
+
+onUpdated(() => {
+    if (dialogStore.show !== false) {
+        form.name = props.data?.name ?? ''
+        form.price = props.data?.price_raw ?? ''
+        form.type = props.data?.type ?? 'Gold'
+        form.duration_months = props.data?.duration_months_raw ?? ''
+    }
+})
 </script>
 <template>
-    <Dialog :open="form.dialog">
-        <DialogTrigger>
-            <Button @click="form.dialog = true" size="sm">Create New Service</Button>
-        </DialogTrigger>
+    <Dialog :open="dialogStore.show">
         <DialogContent class="sm:max-w-2xl grid-rows-[auto_minmax(0,1fr)_auto] max-h-[90dvh]">
             <DialogHeader>
-                <DialogTitle>Form Create Service</DialogTitle>
+                <DialogTitle>Form Update Service</DialogTitle>
                 <DialogDescription>
-                    Create a service that you want.
+                    Update this service as you want.
                 </DialogDescription>
             </DialogHeader>
 
@@ -99,8 +109,8 @@ const handleSubmitService = () => {
             </div>
 
             <DialogFooter>
-                <Button variant="ghost" @click="form.dialog = false">Cancel</Button>
-                <Button @click="handleSubmitService">Save Service</Button>
+                <Button variant="ghost" @click="handleCancelButton()">Cancel</Button>
+                <Button @click="handleSubmitService">Update Service</Button>
             </DialogFooter>
         </DialogContent>
     </Dialog>

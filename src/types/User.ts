@@ -13,4 +13,5 @@ export interface FormUsers {
   password: string
   address: string
   phone_number: string
+  dialog: boolean
 }
